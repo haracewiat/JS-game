@@ -1,6 +1,8 @@
 var canvas = document.getElementById("canvas");
 var game = canvas.getContext('2d');
 
+
+//constant values
 const CANVAS_WIDTH = canvas.width;
 const CANVAS_HEIGHT = canvas.height;
 
@@ -15,43 +17,12 @@ const BALL_WIDTH = BALL_HEIGHT*2.5;
 const BALL_SPEED = 2.5;
 
 const BRICKS_ROW = 6;
-const BRICKS_COLUMN = 9;
+const BRICKS_COLUMN = 6;
 const BRICK_WIDTH = (CANVAS_WIDTH-SIDE_OFFSET*2)/BRICKS_ROW;
-const BRICK_HEIGHT = 7;
+const BRICK_HEIGHT = 8;
 
 
 //objects
-var paddle = {
-
-    height: PADDLE_HEIGHT,
-    width: PADDLE_WIDTH,
-    x: CANVAS_WIDTH/2 - PADDLE_WIDTH/2,
-    y: CANVAS_HEIGHT - PADDLE_HEIGHT - 6,
-    x_velocity: 0
-  
-};
-
-var ball = {
-
-    height: BALL_HEIGHT,
-    width: BALL_WIDTH,
-    x: CANVAS_WIDTH/2,
-    y: CANVAS_HEIGHT - PADDLE_HEIGHT - 6 - BALL_HEIGHT,
-    x_velocity: BALL_SPEED,
-    y_velocity: BALL_SPEED 
-
-}
-
-var brick = {
-
-    height: BRICK_HEIGHT,
-    width: BRICK_WIDTH,
-    x: SIDE_OFFSET,
-    y: TOP_OFFSET,
-    delete: 0
-
-}
-
 var controller = {
 
     left: false,
@@ -73,14 +44,44 @@ var controller = {
 
 };
 
-let bricks = [];
+var paddle = {
 
+    height: PADDLE_HEIGHT,
+    width: PADDLE_WIDTH,
+    x: CANVAS_WIDTH/2 - PADDLE_WIDTH/2,
+    y: CANVAS_HEIGHT - PADDLE_HEIGHT - 6,
+    x_velocity: 0
+  
+};
 
+var ball = {
 
+    height: BALL_HEIGHT,
+    width: BALL_WIDTH,
+    x: CANVAS_WIDTH/2,
+    y: CANVAS_HEIGHT - PADDLE_HEIGHT - 6 - BALL_HEIGHT,
+    x_velocity: BALL_SPEED,
+    y_velocity: BALL_SPEED 
 
+}
 
-function randomColor() {
-    return '#' + Math.floor(Math.random()*0xffffff).toString(16);
+var Brick = function(x, y) {
+
+    this.color = "rgb(" + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + ")";
+    this.height = BRICK_HEIGHT;
+    this.width = BRICK_WIDTH;
+    this.x = SIDE_OFFSET + x;
+    this.y = TOP_OFFSET + y;
+    this.delete = false;
+
+}
+
+var bricks = new Array();
+
+for(let i = 0; i < BRICKS_ROW; i ++) {
+    for(let j = 0; j < BRICKS_COLUMN; j ++) {
+        bricks.push(new Brick(i*BRICK_WIDTH, j*BRICK_HEIGHT));
+    } 
 }
 
 
@@ -129,6 +130,7 @@ var loop = function() {
         ball.y =  paddle.y - ball.height/2;
     }
     
+    /*
     //brick collision
     let ballTop = ball.y - ball.height/2;
     let brickBottom = brick.y + BRICK_HEIGHT;
@@ -137,6 +139,7 @@ var loop = function() {
         ball.y_velocity = -ball.y_velocity;
         ball.y =  brick.y + BRICK_HEIGHT + ball.height/2;        
     }
+    */
   
 //draw the game    
 
@@ -156,25 +159,21 @@ var loop = function() {
     game.ellipse(ball.x, ball.y, ball.width, ball.height, 0, 0, 2 * Math.PI);
     game.fill();
 
-    //brick
-    game.fillStyle = "#dfa6ea";
-    game.beginPath();
-    //game.rect(brick.x, brick.y, brick.width, brick.height);
-    
+    //bricks
+    for(let i=0; i < bricks.length; i++) {
 
-    for(let i=0; i<BRICKS_ROW; i++){
-        for(let j=0; j<BRICKS_COLUMN; j++){
-            if(brick.delete == 0){
-                bricks[i*j] = new brick(SIDE_OFFSET+i*BRICK_WIDTH, TOP_OFFSET+j*BRICK_HEIGHT);
-                console.log(bricks[i*j].x);
-                //bricks.push(game.rect(bricks[i*j].x, bricks[i*j].y, brick.width, brick.height));
-            }
+        let brick = bricks[i];
 
+        if (brick.delete == false){
+            game.fillStyle = brick.color;
+            game.beginPath();
+            game.rect(brick.x, brick.y, brick.width, brick.height);
+            game.fill();
         }
-    }
 
-    game.fill();
-        
+      }
+    
+    
 
 //call update when the browser is ready to draw again
     window.requestAnimationFrame(loop);
