@@ -16,10 +16,10 @@ const BALL_HEIGHT = 3;
 const BALL_WIDTH = BALL_HEIGHT*2.5;
 const BALL_SPEED = 2.5;
 
-const BRICKS_ROW = 6;
+const BRICKS_ROW = 5;
 const BRICKS_COLUMN = 6;
 const BRICK_WIDTH = (CANVAS_WIDTH-SIDE_OFFSET*2)/BRICKS_ROW;
-const BRICK_HEIGHT = 8;
+const BRICK_HEIGHT = 11;
 
 
 //objects
@@ -65,22 +65,33 @@ var ball = {
 
 }
 
-var Brick = function(x, y) {
+var Brick = function(x, y, deleted) {
 
     this.color = "rgb(" + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + "," + Math.floor(Math.random() * 256) + ")";
     this.height = BRICK_HEIGHT;
     this.width = BRICK_WIDTH;
     this.x = SIDE_OFFSET + x;
     this.y = TOP_OFFSET + y;
-    this.delete = false;
+    this.delete = deleted;
 
 }
+
+//function to delete a brick
+Brick.prototype = {
+    deleteBrick: function(deleted) {
+        this.delete = deleted;
+        this.x = null - BRICK_WIDTH;
+        this.y = null - BALL_HEIGHT;
+    }
+};
+
+
 
 var bricks = new Array();
 
 for(let i = 0; i < BRICKS_ROW; i ++) {
     for(let j = 0; j < BRICKS_COLUMN; j ++) {
-        bricks.push(new Brick(i*BRICK_WIDTH, j*BRICK_HEIGHT));
+        bricks.push(new Brick(i*BRICK_WIDTH, j*BRICK_HEIGHT, false));
     } 
 }
 
@@ -130,17 +141,23 @@ var loop = function() {
         ball.y =  paddle.y - ball.height/2;
     }
     
-    /*
     //brick collision
     let ballTop = ball.y - ball.height/2;
-    let brickBottom = brick.y + BRICK_HEIGHT;
 
-    if(ballTop < brickBottom){
-        ball.y_velocity = -ball.y_velocity;
-        ball.y =  brick.y + BRICK_HEIGHT + ball.height/2;        
+    for(let i=0; i < bricks.length; i++) {
+        
+        let brick = bricks[i];
+        let brickBottom = brick.y + BRICK_HEIGHT;
+        let brickLeft = brick.x;
+        let brickRight = brick.x + brick.width;
+
+        
+        if(ballTop < brickBottom && ball.x + ball.width/2 >= brickLeft && ball.x - ball.width/2 <= brickRight){
+            ball.y_velocity = -ball.y_velocity;
+            brick.deleteBrick(true);
+        }
     }
-    */
-  
+
 //draw the game    
 
     //background for the game
@@ -164,14 +181,12 @@ var loop = function() {
 
         let brick = bricks[i];
 
-        if (brick.delete == false){
             game.fillStyle = brick.color;
             game.beginPath();
             game.rect(brick.x, brick.y, brick.width, brick.height);
             game.fill();
-        }
 
-      }
+    }
     
     
 
