@@ -21,6 +21,8 @@ const BRICKS_COLUMN = 6;
 const BRICK_WIDTH = (CANVAS_WIDTH-SIDE_OFFSET*2)/BRICKS_ROW;
 const BRICK_HEIGHT = 11;
 
+var LIFE = true;
+
 
 //objects
 var controller = {
@@ -120,14 +122,19 @@ var loop = function() {
     ball.y += ball.y_velocity;
 
 //create boundries for the ball (don't let it fall out of the canvas)
-    //top and bottom
-    if(ball.y > CANVAS_HEIGHT - BALL_HEIGHT || ball.y < 0 + BALL_HEIGHT){
+    //top
+    if(ball.y < 0 + BALL_HEIGHT){
         ball.y_velocity = -ball.y_velocity;
     }
 
     //sides
     if(ball.x > CANVAS_WIDTH - BALL_WIDTH || ball.x < 0  + BALL_WIDTH){  
         ball.x_velocity = -ball.x_velocity;
+    }
+
+    //bottom (game over)
+    if(ball.y > CANVAS_HEIGHT - BALL_HEIGHT){
+        LIFE = false;
     }
 
     //paddle collision
@@ -160,32 +167,45 @@ var loop = function() {
 
 //draw the game    
 
-    //background for the game
-    game.fillStyle = "rgba(32, 32, 32, 1)";
-    game.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    if(LIFE){
+        //background for the game
+        game.fillStyle = "rgba(32, 32, 32, 1)";
+        game.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-    //paddle
-    game.fillStyle = "#dfa6ea";
-    game.beginPath();
-    game.rect(paddle.x, paddle.y, paddle.width, paddle.height);
-    game.fill();
+        //paddle
+        game.fillStyle = "#dfa6ea";
+        game.beginPath();
+        game.rect(paddle.x, paddle.y, paddle.width, paddle.height);
+        game.fill();
 
-    //ball
-    game.fillStyle = "#db4fb8";
-    game.beginPath();
-    game.ellipse(ball.x, ball.y, ball.width, ball.height, 0, 0, 2 * Math.PI);
-    game.fill();
+        //ball
+        game.fillStyle = "#db4fb8";
+        game.beginPath();
+        game.ellipse(ball.x, ball.y, ball.width, ball.height, 0, 0, 2 * Math.PI);
+        game.fill();
 
-    //bricks
-    for(let i=0; i < bricks.length; i++) {
+        //bricks
+        for(let i=0; i < bricks.length; i++) {
 
-        let brick = bricks[i];
+            let brick = bricks[i];
 
-            game.fillStyle = brick.color;
-            game.beginPath();
-            game.rect(brick.x, brick.y, brick.width, brick.height);
-            game.fill();
+                game.fillStyle = brick.color;
+                game.beginPath();
+                game.rect(brick.x, brick.y, brick.width, brick.height);
+                game.fill();
 
+        }
+    }
+    else{
+        game.fillStyle = "rgba(180, 180, 180, 1)";
+        game.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);        
+        game.fill();
+
+        game.font = "30px Arial";
+        game.fillStyle = "white";
+        game.textAlign = "center";
+        game.fillText("Game over", CANVAS_WIDTH/2, CANVAS_HEIGHT/2);
+        
     }
     
     
