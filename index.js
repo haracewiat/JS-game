@@ -22,6 +22,7 @@ const BRICK_WIDTH = (CANVAS_WIDTH-SIDE_OFFSET*2)/BRICKS_ROW;
 const BRICK_HEIGHT = 11;
 
 var LIFE = true;
+var WIN = false;
 
 
 //objects
@@ -53,7 +54,7 @@ var paddle = {
     x: CANVAS_WIDTH/2 - PADDLE_WIDTH/2,
     y: CANVAS_HEIGHT - PADDLE_HEIGHT - 6,
     x_velocity: 0
-  
+
 };
 
 var ball = {
@@ -63,7 +64,7 @@ var ball = {
     x: CANVAS_WIDTH/2,
     y: CANVAS_HEIGHT - PADDLE_HEIGHT - 6 - BALL_HEIGHT,
     x_velocity: BALL_SPEED,
-    y_velocity: BALL_SPEED 
+    y_velocity: BALL_SPEED
 
 }
 
@@ -94,24 +95,33 @@ var bricks = new Array();
 for(let i = 0; i < BRICKS_ROW; i ++) {
     for(let j = 0; j < BRICKS_COLUMN; j ++) {
         bricks.push(new Brick(i*BRICK_WIDTH, j*BRICK_HEIGHT, false));
-    } 
+    }
 }
 
+
+//see if all bricks are deleted
+for(let i = 0; i < BRICKS_ROW; i ++) {
+    for(let j = 0; j < BRICKS_COLUMN; j ++) {
+        if(bricks[i*j].x != null){
+          console.log("no win");
+        }
+    }
+}
 
 var loop = function() {
 
 //move the paddle
-    if(controller.left){  
-    paddle.x_velocity -= 1.5;  
-    }else if(controller.right){  
-    paddle.x_velocity += 1.5;  
+    if(controller.left){
+    paddle.x_velocity -= 1.5;
+    }else if(controller.right){
+    paddle.x_velocity += 1.5;
     }
 
     paddle.x += paddle.x_velocity;
-    paddle.x_velocity *= 0.8;                      
-  
+    paddle.x_velocity *= 0.8;
+
 //create boundries for the paddle (don't let it fall out of the canvas)
-    if(paddle.x < 0){  
+    if(paddle.x < 0){
         paddle.x = 0;
     }else if(paddle.x > CANVAS_WIDTH - PADDLE_WIDTH){
         paddle.x = CANVAS_WIDTH - PADDLE_WIDTH;
@@ -128,7 +138,7 @@ var loop = function() {
     }
 
     //sides
-    if(ball.x > CANVAS_WIDTH - BALL_WIDTH || ball.x < 0  + BALL_WIDTH){  
+    if(ball.x > CANVAS_WIDTH - BALL_WIDTH || ball.x < 0  + BALL_WIDTH){
         ball.x_velocity = -ball.x_velocity;
     }
 
@@ -147,25 +157,25 @@ var loop = function() {
         ball.y_velocity = -ball.y_velocity;
         ball.y =  paddle.y - ball.height/2;
     }
-    
+
     //brick collision
     let ballTop = ball.y - ball.height/2;
 
     for(let i=0; i < bricks.length; i++) {
-        
+
         let brick = bricks[i];
         let brickBottom = brick.y + BRICK_HEIGHT;
         let brickLeft = brick.x;
         let brickRight = brick.x + brick.width;
 
-        
+
         if(ballTop < brickBottom && ball.x + ball.width/2 >= brickLeft && ball.x - ball.width/2 <= brickRight){
             ball.y_velocity = -ball.y_velocity;
             brick.deleteBrick(true);
         }
     }
 
-//draw the game    
+//draw the game
 
     if(LIFE){
         //background for the game
@@ -198,25 +208,24 @@ var loop = function() {
     }
     else{
         game.fillStyle = "rgba(180, 180, 180, 1)";
-        game.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);        
+        game.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         game.fill();
 
         game.font = "30px Arial";
         game.fillStyle = "white";
         game.textAlign = "center";
         game.fillText("Game over", CANVAS_WIDTH/2, CANVAS_HEIGHT/2);
-        
+
     }
-    
-    
+
+
 
 //call update when the browser is ready to draw again
     window.requestAnimationFrame(loop);
-    
+
 };
 
 window.addEventListener("keydown", controller.keyListener);
 window.addEventListener("keyup", controller.keyListener);
 
 window.requestAnimationFrame(loop);
-
